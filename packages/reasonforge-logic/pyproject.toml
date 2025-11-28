@@ -1,0 +1,14 @@
+[project]
+name = "reasonforge-logic"
+version = "0.1.0"
+description = "Symbolic AI and formal logic - 13 tools"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{name = "Derek Fox"}]
+dependencies = ["mcp>=1.0.0", "sympy>=1.12", "reasonforge>=0.1.0"]
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+[tool.setuptools]
+packages = ["reasonforge_logic"]
+package-dir = {"" = "src"}

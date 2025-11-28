@@ -1,0 +1,76 @@
+# ReasonForge Benchmark Suite Configuration
+#
+# Copy this file to config.yaml and add your API keys
+# cp config.yaml.example config.yaml
+
+# Provider Configuration
+# Enable/disable providers and set API keys and models
+providers:
+  # ReasonForge (always available, no API key needed)
+  reasonforge:
+    enabled: true
+
+  # Anthropic Claude
+  anthropic:
+    enabled: false  # Set to true to enable
+    api_key: ""  # Add your Anthropic API key here
+    model: "claude-3-5-sonnet-20241022"  # Options: claude-3-5-sonnet-20241022, claude-3-5-haiku-20241022, claude-3-opus-20240229
+
+  # OpenAI GPT
+  openai:
+    enabled: false  # Set to true to enable
+    api_key: ""  # Add your OpenAI API key here
+    model: "gpt-4o"  # Options: gpt-4o, gpt-4o-mini, gpt-4-turbo-2024-04-09, gpt-4, gpt-3.5-turbo
+
+# Test Selection
+# Filter which tests to run
+test_selection:
+  # Categories to test (null = all categories)
+  # Options: expressions, algebra, analysis, geometry, statistics, physics, logic
+  categories: null  # Example: ["expressions", "algebra", "calculus"]
+
+  # Difficulty levels to test (null = all difficulties)
+  # Options: easy, medium, hard
+  difficulties: null  # Example: ["easy", "medium"]
+
+  # Specific test IDs to run (null = all tests)
+  # See test_cases.py for available test IDs
+  test_ids: null  # Example: ["expr_001", "alg_001", "calc_001"]
+
+# Example Configurations:
+#
+# 1. Quick test with ReasonForge only:
+#    providers:
+#      reasonforge:
+#        enabled: true
+#    test_selection:
+#      difficulties: ["easy"]
+#
+# 2. Full comparison with Claude:
+#    providers:
+#      reasonforge:
+#        enabled: true
+#      anthropic:
+#        enabled: true
+#        api_key: "sk-ant-..."
+#        model: "claude-3-5-sonnet-20241022"
+#    test_selection:
+#      categories: null
+#      difficulties: null
+#
+# 3. Algebra tests only with multiple LLMs:
+#    providers:
+#      reasonforge:
+#        enabled: true
+#      anthropic:
+#        enabled: true
+#        api_key: "sk-ant-..."
+#      openai:
+#        enabled: true
+#        api_key: "sk-..."
+#    test_selection:
+#      categories: ["algebra"]
+#
+# 4. Specific test cases:
+#    test_selection:
+#      test_ids: ["expr_001", "expr_002", "alg_001"]

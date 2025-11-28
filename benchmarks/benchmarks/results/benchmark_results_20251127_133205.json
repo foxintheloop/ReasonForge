@@ -1,0 +1,138 @@
+{
+  "timestamp": "20251127_133205",
+  "config": {
+    "providers": {
+      "reasonforge": {
+        "enabled": true
+      },
+      "openai": {
+        "enabled": false
+      }
+    },
+    "test_selection": {
+      "categories": [
+        "logic"
+      ],
+      "difficulties": null,
+      "test_ids": null
+    }
+  },
+  "summary": {
+    "total_tests": 13,
+    "providers": {
+      "reasonforge": {
+        "accuracy": 100.0,
+        "correct": 13,
+        "total": 13,
+        "avg_latency_ms": 2.77,
+        "total_cost": 0.0
+      }
+    }
+  },
+  "detailed_results": [
+    {
+      "test_id": "logic_001",
+      "provider": "reasonforge",
+      "correct": true,
+      "latency_ms": 28,
+      "cost": 0.0,
+      "explanation": "Contains 'n**2'"
+    },
+    {
+      "test_id": "logic_002",
+      "provider": "reasonforge",
+      "correct": true,
+      "latency_ms": 0,
+      "cost": 0.0,
+      "explanation": "Contains 'rules'"
+    },
+    {
+      "test_id": "logic_003",
+      "provider": "reasonforge",
+      "correct": true,
+      "latency_ms": 0,
+      "cost": 0.0,
+      "explanation": "Contains 'theorem'"
+    },
+    {
+      "test_id": "logic_004",
+      "provider": "reasonforge",
+      "correct": true,
+      "latency_ms": 0,
+      "cost": 0.0,
+      "explanation": "Contains 'concept'"
+    },
+    {
+      "test_id": "logic_005",
+      "provider": "reasonforge",
+      "correct": true,
+      "latency_ms": 0,
+      "cost": 0.0,
+      "explanation": "Contains 'mapping'"
+    },
+    {
+      "test_id": "logic_006",
+      "provider": "reasonforge",
+      "correct": true,
+      "latency_ms": 0,
+      "cost": 0.0,
+      "explanation": "Contains 'conjecture'"
+    },
+    {
+      "test_id": "logic_007",
+      "provider": "reasonforge",
+      "correct": true,
+      "latency_ms": 2,
+      "cost": 0.0,
+      "explanation": "Contains 'forall'"
+    },
+    {
+      "test_id": "logic_008",
+      "provider": "reasonforge",
+      "correct": true,
+      "latency_ms": 4,
+      "cost": 0.0,
+      "explanation": "Contains '&'"
+    },
+    {
+      "test_id": "logic_009",
+      "provider": "reasonforge",
+      "correct": true,
+      "latency_ms": 0,
+      "cost": 0.0,
+      "explanation": "Contains 'paths'"
+    },
+    {
+      "test_id": "logic_010",
+      "provider": "reasonforge",
+      "correct": true,
+      "latency_ms": 1,
+      "cost": 0.0,
+      "explanation": "Contains 'constraints'"
+    },
+    {
+      "test_id": "logic_011",
+      "provider": "reasonforge",
+      "correct": true,
+      "latency_ms": 0,
+      "cost": 0.0,
+      "explanation": "Contains 'axioms'"
+    },
+    {
+      "test_id": "logic_012",
+      "provider": "reasonforge",
+      "correct": true,
+      "latency_ms": 0,
+      "cost": 0.0,
+      "explanation": "Exact string match"
+    },
+    {
+      "test_id": "logic_013",
+      "provider": "reasonforge",
+      "correct": true,
+      "latency_ms": 1,
+      "cost": 0.0,
+      "explanation": "Contains 'a + b = b + a'"
+    }
+  ]
+}

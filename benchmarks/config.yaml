@@ -1,0 +1,22 @@
+# ReasonForge Benchmark Suite Configuration
+# Copy this file to config.local.yaml and add your API keys there
+
+providers:
+  reasonforge:
+    enabled: true
+
+  openai:
+    enabled: false
+    api_key: ""  # Add your OpenAI API key here
+    model: "gpt-4o"
+
+  anthropic:
+    enabled: false
+    api_key: ""  # Add your Anthropic API key here
+    model: "claude-3-5-sonnet-20241022"
+
+test_selection:
+  # Run all 111 tools (set to specific category to filter)
+  categories: null
+  difficulties: null
+  test_ids: null

@@ -1,0 +1,63 @@
+[project]
+name = "reasonforge"
+version = "0.1.0"
+description = "Core symbolic computation library for ReasonForge - 100% accuracy mathematical reasoning"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+    {name = "Derek Fox", email = "your.email@example.com"}
+]
+keywords = ["symbolic-computation", "sympy", "mathematics", "reasoning", "artificial-intelligence"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+dependencies = [
+    "sympy>=1.12",
+    "numpy>=1.24.0",
+    "matplotlib>=3.7.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/yourusername/reasonforge"
+Documentation = "https://github.com/yourusername/reasonforge#readme"
+Repository = "https://github.com/yourusername/reasonforge"
+Issues = "https://github.com/yourusername/reasonforge/issues"
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["reasonforge"]
+package-dir = {"" = "src"}
+
+[tool.black]
+line-length = 100
+target-version = ['py310', 'py311', 'py312']
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
