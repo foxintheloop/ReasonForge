@@ -4,6 +4,7 @@
 """
 
 from typing import Dict, Any
+import re
 
 import sympy as sp
 from sympy import symbols, latex, simplify, solve
@@ -20,6 +21,21 @@ from reasonforge import (
     validate_list_input,
     ValidationError,
 )
+
+
+# Map base relations to their transitive closure relation names
+TRANSITIVE_RELATION_MAP = {
+    "parent_of": "ancestor_of",
+    "child_of": "descendant_of",
+    "part_of": "contained_in",
+    "contains": "transitively_contains",
+    "reports_to": "in_chain_of",
+    "is_subclass_of": "is_superclass_of",
+    "precedes": "comes_before",
+    "follows": "comes_after",
+    "manages": "in_management_chain_of",
+    "owns": "transitively_owns",
+}
 
 
 def convert_logic_symbols(formula: str) -> str:
@@ -785,15 +801,84 @@ class LogicServer(BaseReasonForgeServer):
                 result["error"] = str(e)
 
         elif operation == "satisfiability":
-            # Check satisfiability
+            # Check satisfiability with full verification
             try:
-                formula_converted = convert_logic_symbols(formula_str)
+                # Normalize multi-line formulas (collapse whitespace)
+                formula_normalized = " ".join(formula_str.split())
+                formula_converted = convert_logic_symbols(formula_normalized)
                 formula_val = validate_expression_string(formula_converted)
-                formula = sp.sympify(formula_val)
+
+                # Extract variable names and create symbols to avoid conflicts
+                # with SymPy built-ins (e.g., E = exp(1), I = imaginary unit)
+                var_names = set(re.findall(r'\b([A-Za-z][A-Za-z0-9]*)\b', formula_val))
+                # Remove Python/SymPy keywords
+                var_names -= {'True', 'False', 'None', 'and', 'or', 'not'}
+                local_symbols = {name: symbols(name) for name in var_names}
+
+                formula = sp.sympify(formula_val, locals=local_symbols)
                 sat_result = satisfiable(formula)
 
                 result["satisfiable"] = sat_result is not False
-                result["model"] = str(sat_result) if sat_result else "UNSAT"
+
+                if sat_result is not False:
+                    # Format assignment as clean dict with lowercase booleans
+                    assignment = {str(k): bool(v) for k, v in sat_result.items()}
+                    result["assignment"] = assignment
+
+                    # Build verification showing each clause evaluation
+                    verification = {"clauses": [], "all_satisfied": True}
+
+                    # Convert to CNF to extract clauses
+                    cnf_formula = to_cnf(formula)
+
+                    # Extract clauses (CNF is AND of ORs)
+                    if hasattr(cnf_formula, 'args') and cnf_formula.func == And:
+                        clauses = list(cnf_formula.args)
+                    else:
+                        clauses = [cnf_formula]
+
+                    for clause in clauses:
+                        # Convert clause back to readable format
+                        clause_str = str(clause).replace('|', '∨').replace('&', '∧').replace('~', '¬')
+
+                        # Substitute values
+                        substituted_parts = []
+                        for sym in clause.free_symbols:
+                            sym_str = str(sym)
+                            val = sat_result.get(sym, None)
+                            if val is not None:
+                                substituted_parts.append(f"{sym_str}={val}")
+
+                        # Evaluate clause with assignment
+                        clause_result = clause.subs(sat_result)
+                        simplified = bool(clause_result)
+
+                        # Build substituted display
+                        sub_str = str(clause)
+                        for sym, val in sat_result.items():
+                            sub_str = sub_str.replace(str(sym), str(val))
+                        sub_str = sub_str.replace('|', '∨').replace('&', '∧').replace('~', '¬')
+
+                        verification["clauses"].append({
+                            "clause": clause_str,
+                            "substituted": sub_str,
+                            "simplified": str(simplified),
+                            "satisfied": simplified
+                        })
+
+                        if not simplified:
+                            verification["all_satisfied"] = False
+
+                    # Build proof summary
+                    assignment_str = ", ".join(f"{k}={v}" for k, v in assignment.items())
+                    verification["proof"] = f"All {len(clauses)} clauses evaluate to True under assignment {{{assignment_str}}}"
+
+                    result["verification"] = verification
+                    result["summary"] = f"SATISFIABLE: {assignment_str}"
+                else:
+                    result["assignment"] = None
+                    result["summary"] = "UNSATISFIABLE: No assignment exists"
+
                 result["result"] = str(sat_result is not False)
             except Exception as e:
                 result["error"] = str(e)
@@ -816,25 +901,122 @@ class LogicServer(BaseReasonForgeServer):
         }
 
         if operation == "transitive_closure":
-            # Compute transitive closure
-            result["reasoning_results"].append("Transitive closure: If (A→B) and (B→C) then (A→C)")
-
-            # Simple transitive closure computation
-            closure = set(tuple(edge) for edge in edges)
-            changed = True
-            while changed:
-                changed = False
-                for edge1 in list(closure):
-                    for edge2 in list(closure):
-                        if len(edge1) >= 2 and len(edge2) >= 2:
+            # Helper function to compute transitive closure for a set of pairs
+            def compute_closure(pairs):
+                closure = set(pairs)
+                changed = True
+                while changed:
+                    changed = False
+                    for edge1 in list(closure):
+                        for edge2 in list(closure):
                             if edge1[1] == edge2[0]:
                                 new_edge = (edge1[0], edge2[1])
                                 if new_edge not in closure:
                                     closure.add(new_edge)
                                     changed = True
+                return closure
 
-            result["transitive_edges"] = [list(edge) for edge in closure]
-            result["result"] = [list(edge) for edge in closure]
+            # Detect edge format and group by relation
+            edges_by_relation = {}
+            is_3_tuple = edges and len(edges[0]) == 3
+
+            if is_3_tuple:
+                # 3-tuple format: ["A", "parent_of", "B"]
+                for edge in edges:
+                    if len(edge) == 3:
+                        subject, relation, obj = edge
+                        if relation not in edges_by_relation:
+                            edges_by_relation[relation] = []
+                        edges_by_relation[relation].append((subject, obj))
+            else:
+                # 2-tuple format: ["A", "B"]
+                edges_by_relation["_default"] = []
+                for edge in edges:
+                    if len(edge) >= 2:
+                        edges_by_relation["_default"].append((edge[0], edge[1]))
+
+            # Check if multi-relation graph
+            is_multi_relation = len(edges_by_relation) > 1
+
+            if is_multi_relation:
+                # Multi-relation mode: compute separate closures for each relation
+                per_relation_closure = {}
+                total_direct = 0
+                total_inferred = 0
+
+                for relation, pairs in sorted(edges_by_relation.items()):
+                    direct_set = set(pairs)
+                    closure = compute_closure(pairs)
+                    inferred_set = closure - direct_set
+
+                    # Get derived relation name
+                    derived_relation = TRANSITIVE_RELATION_MAP.get(
+                        relation, f"transitive_{relation}"
+                    )
+
+                    per_relation_closure[relation] = {
+                        "derived_relation": derived_relation,
+                        "direct_edges": [list(p) for p in sorted(direct_set)],
+                        "inferred_edges": [list(p) for p in sorted(inferred_set)],
+                        "direct_count": len(direct_set),
+                        "inferred_count": len(inferred_set),
+                        "total_count": len(closure)
+                    }
+
+                    total_direct += len(direct_set)
+                    total_inferred += len(inferred_set)
+
+                result["multi_relation"] = True
+                result["relation_count"] = len(edges_by_relation)
+                result["per_relation_closure"] = per_relation_closure
+                result["total_direct_edges"] = total_direct
+                result["total_inferred_edges"] = total_inferred
+                result["total_edges"] = total_direct + total_inferred
+                result["reasoning_results"].append(
+                    f"Computed transitive closures for {len(edges_by_relation)} relations: {total_direct} direct edges → {total_direct + total_inferred} total edges ({total_inferred} inferred)"
+                )
+
+            else:
+                # Single-relation mode (original behavior)
+                base_relation = list(edges_by_relation.keys())[0] if edges_by_relation else None
+                direct_pairs = list(edges_by_relation.values())[0] if edges_by_relation else []
+
+                # Auto-infer derived relation name
+                if base_relation and base_relation != "_default":
+                    derived_relation = TRANSITIVE_RELATION_MAP.get(
+                        base_relation, f"transitive_{base_relation}"
+                    )
+                else:
+                    derived_relation = "reachable_from"
+
+                # Compute transitive closure
+                direct_set = set(direct_pairs)
+                closure = compute_closure(direct_pairs)
+
+                # Separate direct and inferred edges
+                inferred_pairs = closure - direct_set
+
+                # Build full closure with metadata
+                full_closure = []
+                for pair in sorted(closure):
+                    full_closure.append({
+                        "from": pair[0],
+                        "to": pair[1],
+                        "relation": derived_relation,
+                        "direct": pair in direct_set
+                    })
+
+                # Build result
+                if base_relation and base_relation != "_default":
+                    result["base_relation"] = base_relation
+                result["derived_relation"] = derived_relation
+                result["direct_edges"] = [list(p) for p in sorted(direct_set)]
+                result["inferred_edges"] = [list(p) for p in sorted(inferred_pairs)]
+                result["full_closure"] = full_closure
+                result["total_edges"] = len(closure)
+                result["reasoning_results"].append(
+                    f"Computed transitive closure: {len(direct_set)} direct edges → {len(closure)} total edges ({len(inferred_pairs)} inferred)"
+                )
 
         elif operation == "find_paths":
             result["reasoning_results"].append("Find all paths between nodes")
@@ -854,6 +1036,7 @@ class LogicServer(BaseReasonForgeServer):
         variables = validate_list_input(arguments["variables"])
         domains = arguments.get("domains", {})
         constraints = arguments.get("constraints", [])
+        find_all = arguments.get("find_all", False)
 
         # Validate variable names
         variables = [validate_variable_name(v) for v in variables]
@@ -863,74 +1046,143 @@ class LogicServer(BaseReasonForgeServer):
             "variables": variables,
             "domains": domains,
             "constraints": constraints,
-            "solution": {},
-            "method": "Constraint propagation and backtracking"
+            "method": "exhaustive_backtracking" if find_all else "backtracking"
         }
 
         # Backtracking CSP solver
         try:
             var_symbols = {v: symbols(v) for v in variables}
 
-            # Parse constraints
-            constraint_exprs = []
+            # Parse constraints - store as strings for direct evaluation
+            constraint_strs = []
             for constraint in constraints:
                 constraint_str = validate_expression_string(constraint)
-                try:
-                    constraint_exprs.append(sp.sympify(constraint_str))
-                except (ValueError, TypeError, SyntaxError):
-                    pass
+                # Convert == to Eq for SymPy, keep relational operators
+                constraint_strs.append(constraint_str)
+
+            # Track search statistics
+            search_stats = {"assignments_tried": 0, "solutions_found": 0}
+
+            # Safe eval context with built-in math functions
+            safe_eval_context = {
+                "abs": abs, "min": min, "max": max,
+                "True": True, "False": False,
+                "__builtins__": {}
+            }
+
+            def substitute_vars(expr_str, assignment):
+                """Substitute variables with values using word boundaries."""
+                # Sort by length descending to avoid partial matches (e.g., C1 before C11)
+                for var, val in sorted(assignment.items(), key=lambda x: -len(x[0])):
+                    # Use word boundaries to avoid C1 matching C11
+                    expr_str = re.sub(r'\b' + re.escape(var) + r'\b', str(val), expr_str)
+                return expr_str
 
             def is_consistent(assignment):
                 """Check if current assignment satisfies all constraints."""
-                for expr in constraint_exprs:
-                    expr_vars = expr.free_symbols
+                for constraint_str in constraint_strs:
+                    # Get variables used in this constraint (use word boundary matching)
+                    used_vars = [v for v in variables if re.search(r'\b' + re.escape(v) + r'\b', constraint_str)]
+
                     # Only check if all variables in this constraint are assigned
-                    if all(str(v) in assignment for v in expr_vars):
-                        subs = {var_symbols[str(v)]: assignment[str(v)] for v in expr_vars}
+                    if all(v in assignment for v in used_vars):
+                        # Substitute values into constraint string
+                        eval_str = substitute_vars(constraint_str, assignment)
+
                         try:
-                            if not bool(expr.subs(subs)):
+                            # Evaluate the constraint with safe context
+                            eval_result = eval(eval_str, safe_eval_context)
+                            if not eval_result:
                                 return False
-                        except TypeError:
+                        except Exception:
                             # Can't evaluate, skip
                             pass
                 return True
 
-            def backtrack(assignment, var_idx):
-                """Backtracking search."""
+            def backtrack_first(assignment, var_idx):
+                """Backtracking search - find first solution."""
                 if var_idx == len(variables):
+                    search_stats["solutions_found"] = 1
                     return assignment.copy()
 
                 var = variables[var_idx]
                 var_domain = domains.get(var, [])
 
                 for value in var_domain:
+                    search_stats["assignments_tried"] += 1
                     assignment[var] = value
                     if is_consistent(assignment):
-                        found = backtrack(assignment, var_idx + 1)
+                        found = backtrack_first(assignment, var_idx + 1)
                         if found is not None:
                             return found
                     del assignment[var]
 
                 return None
 
+            def backtrack_all(assignment, var_idx, solutions):
+                """Backtracking search - find ALL solutions."""
+                if var_idx == len(variables):
+                    solutions.append(assignment.copy())
+                    search_stats["solutions_found"] += 1
+                    return
+
+                var = variables[var_idx]
+                var_domain = domains.get(var, [])
+
+                for value in var_domain:
+                    search_stats["assignments_tried"] += 1
+                    assignment[var] = value
+                    if is_consistent(assignment):
+                        backtrack_all(assignment, var_idx + 1, solutions)
+                    del assignment[var]
+
             if not domains:
                 result["note"] = "No domains provided - cannot solve CSP"
-            elif not constraint_exprs:
+                result["satisfiable"] = False
+            elif not constraint_strs:
                 # No constraints - any assignment from domains works
                 solution = {var: domains.get(var, [None])[0] for var in variables}
                 result["solution"] = solution
-                result["result"] = solution
+                result["solutions"] = [solution]
+                result["solution_count"] = 1
                 result["satisfiable"] = True
             else:
-                solution = backtrack({}, 0)
-                if solution:
-                    result["solution"] = solution
-                    result["result"] = solution
-                    result["satisfiable"] = True
+                if find_all:
+                    # Find ALL solutions
+                    solutions = []
+                    backtrack_all({}, 0, solutions)
+
+                    # Calculate total domain size
+                    total_assignments = 1
+                    for var in variables:
+                        total_assignments *= len(domains.get(var, []))
+
+                    result["satisfiable"] = len(solutions) > 0
+                    result["solution_count"] = len(solutions)
+                    result["solutions"] = solutions
+                    result["search_stats"] = {
+                        "total_assignments": total_assignments,
+                        "assignments_checked": search_stats["assignments_tried"],
+                        "solutions_found": search_stats["solutions_found"],
+                        "method": "exhaustive_backtracking"
+                    }
+
+                    domain_sizes = "×".join(str(len(domains.get(v, []))) for v in variables)
+                    result["summary"] = f"Found {len(solutions)} solutions out of {total_assignments} possible assignments ({domain_sizes} domain combinations)"
+
+                    # For backward compatibility, also set solution to first one
+                    if solutions:
+                        result["solution"] = solutions[0]
                 else:
-                    result["solution"] = {}
-                    result["satisfiable"] = False
-                    result["note"] = "No solution found - constraints unsatisfiable with given domains"
+                    # Find first solution only
+                    solution = backtrack_first({}, 0)
+                    if solution:
+                        result["solution"] = solution
+                        result["satisfiable"] = True
+                    else:
+                        result["solution"] = {}
+                        result["satisfiable"] = False
+                        result["note"] = "No solution found - constraints unsatisfiable with given domains"
 
         except Exception as e:
             result["error"] = str(e)
