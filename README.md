@@ -1,8 +1,8 @@
-# ReasonForge - Symbolic Mathematics Toolkit
+# ReasonForge - Mathematics Toolkit
 
-> **Modular Symbolic Mathematics for LLM Integration**
+> **Modular Mathematics for LLM Integration**
 
-ReasonForge is a comprehensive ecosystem of symbolic mathematics packages built on SymPy, NumPy, SciPy, and scikit-learn, exposed via MCP (Model Context Protocol) servers. It provides 111 specialized tools across 7 focused servers, each targeting specific mathematical domains. Our goal is to achieve 100% accuracy and zero hallucinations for supported mathematical operations.
+ReasonForge is a comprehensive ecosystem of mathematics packages built on SymPy, NumPy, SciPy, and scikit-learn, exposed via MCP (Model Context Protocol) servers. It provides 111 specialized tools across 7 focused servers, each targeting specific mathematical domains. Our goal is to achieve 100% accuracy and zero hallucinations for supported mathematical operations.
 
 ## Package Status
 
@@ -27,16 +27,7 @@ ReasonForge is a comprehensive ecosystem of symbolic mathematics packages built 
 
 ## Why ReasonForge?
 
-ReasonForge provides **modular symbolic mathematics** for LLM applications. Instead of loading 111 tools you don't need, install exactly what your workflow requires.
-
-### Benefits
-
-Modular approach:
-- ✅ Install only needed domains
-- ✅ Clear domain separation (algebra, calculus, statistics, etc.)
-- ✅ Fast startup and low memory
-- ✅ Independent versioning per domain
-- ✅ Follows mathematical taxonomy (like SymPy, SciPy, MATLAB)
+ReasonForge provides **modular mathematics** for LLM applications. Instead of loading 111 tools you don't need, install exactly what your workflow requires.
 
 ## Architecture
 
@@ -144,15 +135,6 @@ Each example shows a natural language user query and the corresponding tool usag
 | Reproducibility | Achieved |
 | Full coverage of mathematical domains | In progress |
 
-### Token Usage (Context Window)
-
-| Configuration | Tools Loaded | Token Usage | Reduction |
-|---------------|-------------|-------------|-----------|
-| **Monolithic Server** | 111 | ~8,000 tokens | Baseline |
-| **Single Package** | 13-18 | ~800-1,200 tokens | **85-90% ↓** |
-
-**Note**: Some tools provide symbolic formulations rather than complete solutions (e.g., physics equation setups). See individual package documentation for details.
-
 ## Contributing
 
 Contributions welcome! Each package is independent, making it easy to:
@@ -180,12 +162,12 @@ If you use ReasonForge in research or production:
 
 ```bibtex
 @software{reasonforge_ecosystem,
-  title = {ReasonForge: Symbolic Mathematics Toolkit},
+  title = {ReasonForge: Mathematics Toolkit},
   author = {Derek Fox},
   year = {2025},
-  description = {Modular MCP server ecosystem with 111 symbolic mathematics tools across 7 packages},
+  description = {Modular MCP server ecosystem with 111 mathematics tools across 7 packages},
   url = {https://github.com/foxintheloop/reasonforge},
-  note = {SymPy-powered symbolic computation for LLM integration}
+  note = {SymPy-powered computation for LLM integration}
 }
 ```
 

@@ -1,28 +1,29 @@
 # ReasonForge Logic
 
-**Symbolic reasoning and formal logic MCP server - 13 tools**
+**Formal reasoning and logic MCP server - 13 tools**
 
-An MCP (Model Context Protocol) server that provides Claude with symbolic reasoning and formal logic capabilities using SymPy's mathematical engine.
+An MCP (Model Context Protocol) server that provides Claude with formal reasoning and logic capabilities using SymPy's symbolic engine.
+
+## Capabilities
+
+- **SAT Solving** - Boolean satisfiability with SymPy's DPLL algorithm
+- **Constraint Satisfaction** - CSP solver with MRV heuristic, handles 8-Queens, cryptarithmetic, graph coloring
+- **Knowledge Graphs** - Transitive closure with multi-relation support
+- **Propositional Logic** - CNF/DNF conversion, simplification, satisfiability
+- **First-Order Logic** - Parsing, normalization, unification
+- **Modal/Fuzzy Logic** - Alethic, temporal, epistemic, and fuzzy set operations
 
 ## Test Status
 
-| Tool | Unit Test | Benchmark | Status |
-|------|-----------|-----------|--------|
-| pattern_to_equation | PASS | PASS | Stable |
-| symbolic_knowledge_extraction | PASS | PASS | Stable |
-| symbolic_theorem_proving | PASS | PASS | Stable |
-| feature_extraction | PASS | PASS | Stable |
-| structure_mapping | PASS | PASS | Stable |
-| automated_conjecture | PASS | PASS | Stable |
-| first_order_logic | PASS | PASS | Stable |
-| propositional_logic_advanced | PASS | PASS | Stable |
-| knowledge_graph_reasoning | PASS | PASS | Stable |
-| constraint_satisfaction | PASS | PASS | Stable |
-| modal_logic | PASS | PASS | Stable |
-| fuzzy_logic | PASS | PASS | Stable |
-| generate_proof | PASS | PASS | Stable |
+| Category | Tests | Status |
+|----------|-------|--------|
+| Pattern Recognition | 5 | ✅ Stable |
+| Logic Systems | 5 | ✅ Stable |
+| Specialized Logic | 3 | ✅ Stable |
+| Demo Problems | 4 | ✅ Stable |
+| Hard Suite (SAT/KG/CSP) | 19 | ✅ Stable |
 
-**Overall: 13/13 tests passing (100%)**
+**Overall: 36 tests covering 13 tools**
 
 ## Installation
 
@@ -117,9 +118,9 @@ Then use a simpler configuration:
 |------|-------------|-------------|
 | `automated_conjecture` | Generate mathematical conjectures | Generate number theory conjectures |
 | `first_order_logic` | Parse, normalize, unify FOL formulas | Parse "forall x, P(x) -> Q(x)" |
-| `propositional_logic_advanced` | CNF, DNF, simplify, satisfiability | Convert "(A \| B) & C" to CNF |
-| `knowledge_graph_reasoning` | Transitive closure, path finding | Find paths in knowledge graphs |
-| `constraint_satisfaction` | Solve CSP problems | Solve x != y with domains |
+| `propositional_logic_advanced` | CNF, DNF, simplify, SAT solving | Check satisfiability of boolean formulas |
+| `knowledge_graph_reasoning` | Transitive closure, multi-relation graphs | Infer relationships in knowledge graphs |
+| `constraint_satisfaction` | CSP with MRV heuristic | Solve 8-Queens, Sudoku, cryptarithmetic |
 
 ### Specialized Logic (3 tools)
 
@@ -133,10 +134,26 @@ Then use a simpler configuration:
 
 Once configured, you can ask Claude:
 
-- "Find the pattern in the sequence [2, 6, 12, 20, 30] and give me the formula"
-- "Convert the formula (A OR B) AND (C OR D) to conjunctive normal form"
+**Pattern Recognition:**
+- "Find the pattern in [2, 6, 12, 20, 30] and give me the formula"
+
+**SAT Solving:**
+- "Is this formula satisfiable: (A | B) & (~A | C) & (~B | ~C)?"
+- "Can 4 pigeons fit in 3 holes with one pigeon per hole?"
+
+**Constraint Satisfaction:**
+- "Solve the 8-Queens problem"
+- "Solve SEND + MORE = MONEY where each letter is a unique digit"
+- "3-color the Petersen graph"
+
+**Knowledge Graphs:**
+- "Find all transitive relationships: Alice manages Bob, Bob manages Carol"
+
+**Propositional Logic:**
+- "Convert (A OR B) AND (C OR D) to conjunctive normal form"
+
+**Proofs:**
 - "Prove that if all humans are mortal and Socrates is human, then Socrates is mortal"
-- "Find the fuzzy union of sets {a: 0.7, b: 0.3} and {a: 0.4, b: 0.8}"
 
 ## Dependencies
 
