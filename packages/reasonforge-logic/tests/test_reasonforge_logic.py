@@ -665,16 +665,23 @@ class TestHardSuite:
                 assert abs(qi - qj) != abs(i - j), f"Q{i} and Q{j} on same diagonal"
 
     @pytest.mark.asyncio
-    @pytest.mark.skip(reason="Search space 10^8 too large for basic backtracking - needs optimization")
     async def test_csp_send_more_money(self):
         """SEND + MORE = MONEY cryptarithmetic.
 
-        Note: This test is skipped by default because the 10^8 search space
-        is too large for basic backtracking. Needs arc consistency or
-        constraint propagation optimization.
+        Optimized domain: M must be 1 (5-digit MONEY requires carry), S must be 1-9.
+        With MRV heuristic and domain pruning, solves in ~30 seconds.
         """
         variables = ["S", "E", "N", "D", "M", "O", "R", "Y"]
-        domains = {v: list(range(0, 10)) for v in variables}
+        domains = {
+            "S": [1, 2, 3, 4, 5, 6, 7, 8, 9],  # No leading zero
+            "E": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+            "N": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+            "D": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+            "M": [1],  # MONEY is 5 digits, so M must be 1 (the carry)
+            "O": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+            "R": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+            "Y": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+        }
         constraints = [
             # All different
             "S != E", "S != N", "S != D", "S != M", "S != O", "S != R", "S != Y",
@@ -684,9 +691,6 @@ class TestHardSuite:
             "M != O", "M != R", "M != Y",
             "O != R", "O != Y",
             "R != Y",
-            # Leading digits non-zero
-            "S > 0",
-            "M > 0",
             # The equation: SEND + MORE = MONEY
             "1000*S + 100*E + 10*N + D + 1000*M + 100*O + 10*R + E == 10000*M + 1000*O + 100*N + 10*E + Y"
         ]
@@ -698,11 +702,24 @@ class TestHardSuite:
         data = json.loads(result[0].text)
         assert data["satisfiable"] == True
 
-        # Verify the unique solution
+        # Verify the unique solution: S=9, E=5, N=6, D=7, M=1, O=0, R=8, Y=2
         sol = data["solution"]
+        assert sol["S"] == 9
+        assert sol["E"] == 5
+        assert sol["N"] == 6
+        assert sol["D"] == 7
+        assert sol["M"] == 1
+        assert sol["O"] == 0
+        assert sol["R"] == 8
+        assert sol["Y"] == 2
+
+        # Verify: 9567 + 1085 = 10652
         send = 1000*sol["S"] + 100*sol["E"] + 10*sol["N"] + sol["D"]
         more = 1000*sol["M"] + 100*sol["O"] + 10*sol["R"] + sol["E"]
         money = 10000*sol["M"] + 1000*sol["O"] + 100*sol["N"] + 10*sol["E"] + sol["Y"]
+        assert send == 9567
+        assert more == 1085
+        assert money == 10652
         assert send + more == money
 
     @pytest.mark.asyncio

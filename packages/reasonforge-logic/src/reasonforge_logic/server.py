@@ -1053,12 +1053,29 @@ class LogicServer(BaseReasonForgeServer):
         try:
             var_symbols = {v: symbols(v) for v in variables}
 
-            # Parse constraints - store as strings for direct evaluation
-            constraint_strs = []
+            # Parse constraints into optimized structures
+            # Simple constraints: "X != Y" -> (var1, var2) for O(1) checking
+            # Complex constraints: stored with pre-computed variable lists
+            simple_neq_pairs = []  # List of (var1, var2) for X != Y constraints
+            complex_constraints = []  # List of (constraint_str, [vars_in_constraint])
+
+            # Variable set for fast lookup
+            var_set = set(variables)
+
             for constraint in constraints:
                 constraint_str = validate_expression_string(constraint)
-                # Convert == to Eq for SymPy, keep relational operators
-                constraint_strs.append(constraint_str)
+
+                # Try to parse as simple "X != Y" constraint
+                match = re.match(r'^(\w+)\s*!=\s*(\w+)$', constraint_str.strip())
+                if match:
+                    v1, v2 = match.group(1), match.group(2)
+                    if v1 in var_set and v2 in var_set:
+                        simple_neq_pairs.append((v1, v2))
+                        continue
+
+                # Complex constraint - pre-compute which variables it uses
+                used_vars = [v for v in variables if re.search(r'\b' + re.escape(v) + r'\b', constraint_str)]
+                complex_constraints.append((constraint_str, used_vars))
 
             # Track search statistics
             search_stats = {"assignments_tried": 0, "solutions_found": 0}
@@ -1080,33 +1097,73 @@ class LogicServer(BaseReasonForgeServer):
 
             def is_consistent(assignment):
                 """Check if current assignment satisfies all constraints."""
-                for constraint_str in constraint_strs:
-                    # Get variables used in this constraint (use word boundary matching)
-                    used_vars = [v for v in variables if re.search(r'\b' + re.escape(v) + r'\b', constraint_str)]
+                # Fast path: check simple X != Y constraints (O(1) per constraint)
+                for v1, v2 in simple_neq_pairs:
+                    if v1 in assignment and v2 in assignment:
+                        if assignment[v1] == assignment[v2]:
+                            return False
 
-                    # Only check if all variables in this constraint are assigned
+                # Check complex constraints (only when all vars are assigned)
+                for constraint_str, used_vars in complex_constraints:
                     if all(v in assignment for v in used_vars):
-                        # Substitute values into constraint string
                         eval_str = substitute_vars(constraint_str, assignment)
-
                         try:
-                            # Evaluate the constraint with safe context
                             eval_result = eval(eval_str, safe_eval_context)
                             if not eval_result:
                                 return False
                         except Exception:
-                            # Can't evaluate, skip
                             pass
                 return True
 
+            # Detect if we have FULL alldiff constraint (all pairs constrained)
+            # This is needed for efficient domain pruning in cryptarithmetic-style problems
+            neq_set = {(v1, v2) for v1, v2 in simple_neq_pairs}
+            neq_set |= {(v2, v1) for v1, v2 in simple_neq_pairs}  # symmetric
+
+            def has_full_alldiff():
+                """Check if all variable pairs have != constraints."""
+                n = len(variables)
+                expected_pairs = n * (n - 1)  # Both directions
+                return len(neq_set) >= expected_pairs
+
+            is_full_alldiff = has_full_alldiff()
+
+            def get_remaining_domain(var, assignment):
+                """Get remaining valid values for a variable given current assignment.
+
+                For FULL alldiff constraints, filters out values already used.
+                For partial constraints (like graph coloring), returns full domain.
+                """
+                base_domain = domains.get(var, [])
+                if is_full_alldiff:
+                    used_values = set(assignment.values())
+                    return [v for v in base_domain if v not in used_values]
+                return base_domain
+
+            def select_mrv_variable(assignment):
+                """Select unassigned variable with Minimum Remaining Values (MRV).
+
+                This heuristic dramatically reduces search space by tackling
+                the most constrained variable first.
+                """
+                unassigned = [v for v in variables if v not in assignment]
+                if not unassigned:
+                    return None
+                # Return variable with smallest remaining domain
+                return min(unassigned, key=lambda v: len(get_remaining_domain(v, assignment)))
+
             def backtrack_first(assignment, var_idx):
-                """Backtracking search - find first solution."""
-                if var_idx == len(variables):
+                """Backtracking search with MRV heuristic - find first solution."""
+                if len(assignment) == len(variables):
                     search_stats["solutions_found"] = 1
                     return assignment.copy()
 
-                var = variables[var_idx]
-                var_domain = domains.get(var, [])
+                # Use MRV heuristic to select next variable
+                var = select_mrv_variable(assignment)
+                if var is None:
+                    return None
+
+                var_domain = get_remaining_domain(var, assignment)
 
                 for value in var_domain:
                     search_stats["assignments_tried"] += 1
@@ -1120,14 +1177,18 @@ class LogicServer(BaseReasonForgeServer):
                 return None
 
             def backtrack_all(assignment, var_idx, solutions):
-                """Backtracking search - find ALL solutions."""
-                if var_idx == len(variables):
+                """Backtracking search with MRV heuristic - find ALL solutions."""
+                if len(assignment) == len(variables):
                     solutions.append(assignment.copy())
                     search_stats["solutions_found"] += 1
                     return
 
-                var = variables[var_idx]
-                var_domain = domains.get(var, [])
+                # Use MRV heuristic to select next variable
+                var = select_mrv_variable(assignment)
+                if var is None:
+                    return
+
+                var_domain = get_remaining_domain(var, assignment)
 
                 for value in var_domain:
                     search_stats["assignments_tried"] += 1
@@ -1139,7 +1200,7 @@ class LogicServer(BaseReasonForgeServer):
             if not domains:
                 result["note"] = "No domains provided - cannot solve CSP"
                 result["satisfiable"] = False
-            elif not constraint_strs:
+            elif not simple_neq_pairs and not complex_constraints:
                 # No constraints - any assignment from domains works
                 solution = {var: domains.get(var, [None])[0] for var in variables}
                 result["solution"] = solution
