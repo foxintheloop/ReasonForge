@@ -133,7 +133,7 @@ MIT — see [LICENSE](LICENSE)
 
 ```bibtex
 @software{reasonforge,
-  title = {ReasonForge: Symbolic Mathematics Toolkit for LLM Integration},
+  title = {ReasonForge: Mathematics Toolkit for LLM Integration},
   author = {Derek Fox},
   year = {2025},
   url = {https://github.com/foxintheloop/ReasonForge}
