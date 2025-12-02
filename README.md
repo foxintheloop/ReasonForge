@@ -22,6 +22,8 @@ Claude + ReasonForge:
   → Returns: n² (exact symbolic formula, not a guess)
 ```
 
+![ReasonForge Demo in Claude Desktop](assets/find-the-pattern.png)
+
 ## Quick Start
 
 ```bash

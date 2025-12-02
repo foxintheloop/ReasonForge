@@ -150,7 +150,6 @@ Thumbs.db
 symbolic_ai.py
 symbolic_ai.log
 symbolic_ai_results_*.json
-*.png
 *.pdf
 IMPROVEMENTS.md
 *.backup
