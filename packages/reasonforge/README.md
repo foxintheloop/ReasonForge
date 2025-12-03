@@ -18,6 +18,14 @@ ReasonForge is a pure Python library that provides symbolic mathematical computa
 pip install reasonforge
 ```
 
+To install the complete ReasonForge ecosystem with all domain-specific packages:
+
+```bash
+pip install reasonforge[all]
+```
+
+This installs: reasonforge-logic, reasonforge-algebra, reasonforge-expressions, reasonforge-analysis, reasonforge-geometry, reasonforge-statistics, and reasonforge-physics.
+
 ## Quick Start
 
 ```python

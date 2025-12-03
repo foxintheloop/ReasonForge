@@ -1,6 +1,6 @@
 [project]
 name = "reasonforge"
-version = "0.1.1"
+version = "0.1.2"
 description = "Core symbolic computation library for ReasonForge - 100% accuracy mathematical reasoning"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -28,6 +28,15 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+all = [
+    "reasonforge-logic>=0.1.0",
+    "reasonforge-algebra>=0.1.0",
+    "reasonforge-expressions>=0.1.0",
+    "reasonforge-analysis>=0.1.0",
+    "reasonforge-geometry>=0.1.0",
+    "reasonforge-statistics>=0.1.0",
+    "reasonforge-physics>=0.1.0",
+]
 dev = [
     "pytest>=7.0.0",
     "pytest-asyncio>=0.21.0",

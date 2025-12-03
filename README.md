@@ -30,6 +30,12 @@ Claude + ReasonForge:
 pip install reasonforge-logic
 ```
 
+Or install the complete ecosystem:
+
+```bash
+pip install reasonforge[all]
+```
+
 Or install from source:
 
 ```bash
