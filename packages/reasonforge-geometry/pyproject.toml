@@ -1,6 +1,6 @@
 [project]
 name = "reasonforge-geometry"
-version = "0.1.0"
+version = "0.1.1"
 description = "Vector/tensor calculus and visualization MCP server - 15 tools for geometry"
 readme = "README.md"
 requires-python = ">=3.10"

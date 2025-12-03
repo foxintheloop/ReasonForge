@@ -1,6 +1,6 @@
 [project]
 name = "reasonforge-statistics"
-version = "0.1.0"
+version = "0.1.1"
 description = "Probability and data science MCP server - 16 tools for statistics"
 readme = "README.md"
 requires-python = ">=3.10"

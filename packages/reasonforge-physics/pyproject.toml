@@ -1,6 +1,6 @@
 [project]
 name = "reasonforge-physics"
-version = "0.1.0"
+version = "0.1.1"
 description = "Physics and quantum computing MCP server - 16 tools for physics simulations"
 readme = "README.md"
 requires-python = ">=3.10"

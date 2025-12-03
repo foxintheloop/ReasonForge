@@ -1,6 +1,6 @@
 [project]
 name = "reasonforge-analysis"
-version = "0.1.0"
+version = "0.1.1"
 description = "Advanced calculus and differential equations MCP server - 17 tools for mathematical analysis"
 readme = "README.md"
 requires-python = ">=3.10"
