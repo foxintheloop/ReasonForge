@@ -5,7 +5,7 @@ description = "Essential symbolic expression manipulation MCP server - 15 fundam
 readme = "README.md"
 requires-python = ">=3.10"
 authors = [
-    {name = "Derek Fox", email = "your.email@example.com"}
+    {name = "Derek Fox", email = "derek-fox@mail.com"}
 ]
 keywords = ["mcp", "symbolic-expressions", "sympy", "mathematics", "calculus"]
 classifiers = [
@@ -35,10 +35,9 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/yourusername/reasonforge-expressions"
-Documentation = "https://github.com/yourusername/reasonforge-expressions#readme"
-Repository = "https://github.com/yourusername/reasonforge-expressions"
-Issues = "https://github.com/yourusername/reasonforge-expressions/issues"
+Homepage = "https://github.com/foxintheloop/ReasonForge"
+Repository = "https://github.com/foxintheloop/ReasonForge"
+Issues = "https://github.com/foxintheloop/ReasonForge/issues"
 
 [build-system]
 requires = ["setuptools>=61.0", "wheel"]

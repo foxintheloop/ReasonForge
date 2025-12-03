@@ -5,7 +5,7 @@ description = "Algebraic operations and equation solving MCP server - 18 tools f
 readme = "README.md"
 requires-python = ">=3.10"
 authors = [
-    {name = "Derek Fox", email = "your.email@example.com"}
+    {name = "Derek Fox", email = "derek-fox@mail.com"}
 ]
 keywords = ["mcp", "algebra", "equations", "matrices", "optimization", "sympy"]
 classifiers = [
@@ -35,10 +35,9 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/yourusername/reasonforge-algebra"
-Documentation = "https://github.com/yourusername/reasonforge-algebra#readme"
-Repository = "https://github.com/yourusername/reasonforge-algebra"
-Issues = "https://github.com/yourusername/reasonforge-algebra/issues"
+Homepage = "https://github.com/foxintheloop/ReasonForge"
+Repository = "https://github.com/foxintheloop/ReasonForge"
+Issues = "https://github.com/foxintheloop/ReasonForge/issues"
 
 [build-system]
 requires = ["setuptools>=61.0", "wheel"]

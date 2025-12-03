@@ -1,11 +1,11 @@
 [project]
 name = "reasonforge"
-version = "0.1.0"
+version = "0.1.1"
 description = "Core symbolic computation library for ReasonForge - 100% accuracy mathematical reasoning"
 readme = "README.md"
 requires-python = ">=3.10"
 authors = [
-    {name = "Derek Fox", email = "your.email@example.com"}
+    {name = "Derek Fox", email = "derek-fox@mail.com"}
 ]
 keywords = ["symbolic-computation", "sympy", "mathematics", "reasoning", "artificial-intelligence"]
 classifiers = [
@@ -36,10 +36,9 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/yourusername/reasonforge"
-Documentation = "https://github.com/yourusername/reasonforge#readme"
-Repository = "https://github.com/yourusername/reasonforge"
-Issues = "https://github.com/yourusername/reasonforge/issues"
+Homepage = "https://github.com/foxintheloop/ReasonForge"
+Repository = "https://github.com/foxintheloop/ReasonForge"
+Issues = "https://github.com/foxintheloop/ReasonForge/issues"
 
 [build-system]
 requires = ["setuptools>=61.0", "wheel"]

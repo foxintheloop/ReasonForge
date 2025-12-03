@@ -1,14 +1,63 @@
 [project]
 name = "reasonforge-logic"
 version = "0.1.0"
-description = "Symbolic AI and formal logic - 13 tools"
+description = "Symbolic AI and formal logic MCP server - 13 tools for reasoning and proofs"
 readme = "README.md"
 requires-python = ">=3.10"
-authors = [{name = "Derek Fox"}]
-dependencies = ["mcp>=1.0.0", "sympy>=1.12", "reasonforge>=0.1.0"]
+authors = [
+    {name = "Derek Fox", email = "derek-fox@mail.com"}
+]
+keywords = ["mcp", "symbolic-ai", "formal-logic", "sympy", "reasoning", "proofs"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+dependencies = [
+    "mcp>=1.0.0",
+    "sympy>=1.12",
+    "reasonforge>=0.1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/foxintheloop/ReasonForge"
+Repository = "https://github.com/foxintheloop/ReasonForge"
+Issues = "https://github.com/foxintheloop/ReasonForge/issues"
+
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
+
 [tool.setuptools]
 packages = ["reasonforge_logic"]
 package-dir = {"" = "src"}
+
+[tool.black]
+line-length = 100
+target-version = ['py310', 'py311', 'py312']
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+asyncio_mode = "auto"
