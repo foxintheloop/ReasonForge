@@ -27,6 +27,12 @@ Claude + ReasonForge:
 ## Quick Start
 
 ```bash
+pip install reasonforge-logic
+```
+
+Or install from source:
+
+```bash
 git clone https://github.com/foxintheloop/ReasonForge.git
 cd ReasonForge
 pip install -e packages/reasonforge -e packages/reasonforge-logic

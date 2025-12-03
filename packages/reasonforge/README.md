@@ -92,13 +92,13 @@ The `SymbolicAI` class maintains state for:
 ## Used By
 
 ReasonForge core library is used by:
-- [reasonforge-expressions](https://github.com/yourusername/reasonforge-expressions) - Essential symbolic manipulation
-- [reasonforge-algebra](https://github.com/yourusername/reasonforge-algebra) - Algebraic operations
-- [reasonforge-analysis](https://github.com/yourusername/reasonforge-analysis) - Advanced calculus
-- [reasonforge-geometry](https://github.com/yourusername/reasonforge-geometry) - Vector/tensor calculus
-- [reasonforge-statistics](https://github.com/yourusername/reasonforge-statistics) - Probability & statistics
-- [reasonforge-physics](https://github.com/yourusername/reasonforge-physics) - Physics & quantum computing
-- [reasonforge-logic](https://github.com/yourusername/reasonforge-logic) - Symbolic reasoning & logic
+- [reasonforge-expressions](https://pypi.org/project/reasonforge-expressions/) - Essential symbolic manipulation
+- [reasonforge-algebra](https://pypi.org/project/reasonforge-algebra/) - Algebraic operations
+- [reasonforge-analysis](https://pypi.org/project/reasonforge-analysis/) - Advanced calculus
+- [reasonforge-geometry](https://pypi.org/project/reasonforge-geometry/) - Vector/tensor calculus
+- [reasonforge-statistics](https://pypi.org/project/reasonforge-statistics/) - Probability & statistics
+- [reasonforge-physics](https://pypi.org/project/reasonforge-physics/) - Physics & quantum computing
+- [reasonforge-logic](https://pypi.org/project/reasonforge-logic/) - Symbolic reasoning & logic
 
 ## License
 
@@ -112,6 +112,6 @@ MIT License - See LICENSE file for details
   author = {Derek Fox},
   year = {2025},
   description = {Standalone Python library for exact symbolic mathematical reasoning},
-  url = {https://github.com/yourusername/reasonforge}
+  url = {https://github.com/foxintheloop/ReasonForge}
 }
 ```
